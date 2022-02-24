@@ -1,0 +1,59 @@
+Id	type	label	Coding	color
+gender resp	to code	Female	0.0	pink
+gender resp	to code	Male	1.0	blue
+marital	to code	Married	1.0	green
+marital	to code	Single	0.0	blue
+marital	to code	Divorced	-1.0	yellow
+marital	to code	Widower	0.0	darkgrey
+marital	to code	Other	888.0	grey
+residency	to code	Host Community	1.0	green
+residency	to code	IDP	-1.0	yellow
+residency	to code	Returnee	0.0	blue
+employment	to code	Self-employed	1.0	blue
+employment	to code	Unemployed	0.0	yellow
+employment	to code	Employed	1.0	green
+A15	cat	CFW		
+A15	cat	Unconditional cash transfer		
+A15	cat	Water supply		
+A15	cat	Training		
+A15	cat	Hygiene education		
+A15	cat	 Improved sanitation		
+A15	cat	Agricultural support		
+B3what	cat	Cowpea		
+B3what	cat	Sorghum		
+B3what	cat	Melons		
+B3what	cat	Maize		
+B3what	cat	Cabbage		
+B3what	cat	Tomatoes		
+B19	cat	Modern agricultural practices		
+B19	cat	Harvesting and post-harvesting handling		
+B19	cat	Use of agricultural inputs		
+B19	cat	Fertilizer application		
+B19	cat	Soil erosion control		
+B19	cat	Seed production		
+B19	cat	Pest management		
+B19	cat	Other training		
+dry	cat	jan		
+dry	cat	feb		
+dry	cat	mar		
+dry	cat	apr		
+dry	cat	may		
+dry	cat	jun		
+dry	cat	jul		
+dry	cat	aug		
+dry	cat	sep		
+dry	cat	oct		
+dry	cat	nov		
+dry	cat	dec		
+washhandswhy	to code	To be clean	0.0	
+washhandswhy	to code	To be healthy	1.0	
+washhandswhy	to code	To reduces spread/ transmission of disease	1.0	
+washhandswhy	to code	To reduce foul odor	0.0	
+whashhandhow	to code	With water and ash	0.0	red
+whashhandhow	to code	Water alone	-1.0	lightblue
+whashhandhow	to code	With water and soap	1.0	green
+whashhandhow	to code	With water and sand	0.0	lightgreen
+type_benef	to code	GAP	1.0	green
+type_benef	to code	Hygiene Kit	0.0	blue
+canalworkingwell		Yes		green
+canalworkingwell		No		red
