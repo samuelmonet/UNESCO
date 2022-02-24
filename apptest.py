@@ -39,8 +39,8 @@ def count2(abscisse,ordonnée,dataf):
     agg2=agg2.T.round(2)*100
     x=agg.index
     
-    if ordonnée.split(' ')[0] in codes['Id'].values:
-        colors_code=codes[codes['Id']==ordonnée.split(' ')[0]].sort_values(['Coding'])
+    if ordonnée.split(' ')[0] in codes['list name'].values:
+        colors_code=codes[codes['list name']==ordonnée.split(' ')[0]].sort_values(['Coding'])
         labels=colors_code['label'].tolist()
         colors=colors_code['color'].tolist()
         fig = go.Figure()
@@ -91,8 +91,8 @@ def pourcent2(abscisse,ordonnée,dataf):
     agg=agg.T.round(2)*100
     x=agg2.index
     
-    if ordonnée.split(' ')[0] in codes['Id'].values:
-        colors_code=codes[codes['Id']==ordonnée.split(' ')[0]].sort_values(['Coding'])
+    if ordonnée.split(' ')[0] in codes['list name'].values:
+        colors_code=codes[codes['list name']==ordonnée.split(' ')[0]].sort_values(['Coding'])
         labels=colors_code['label'].tolist()
         colors=colors_code['color'].tolist()
         fig = go.Figure()
@@ -139,7 +139,7 @@ def scatter(q1,q2,main_question,second_question,dfm):
 
 @st.cache
 def selectdf(q1):
-	q2_list=correl[q1].tolist()+[q1]
+	q2_list=[i for i in correl[q1]]+[q1]
 	features=[]
 	df=data.copy()
 	
@@ -210,13 +210,11 @@ st.sidebar.title('Questions Selector')
 @st.cache
 def load_data():
 	data = pd.read_csv('viz.csv',sep='\t')
-	data['D1Mainsourcewaterdry']=data['D1Mainsourcewaterdry'].apply(lambda x: x if x[:6]!='Surfac' else 'Surface water')
-	data['D1Mainsourcewaterrainy']=data['D1Mainsourcewaterrainy'].apply(lambda x: x if x[:6]!='Surfac' else 'Surface water')
-	correl=pd.read_csv('correlations.csv',sep='\t')
+	correl=pickle.load( open( "correlations.p", "rb" ) )
 	questions=pd.read_csv('questions.csv',index_col=0,sep='\t')
 	questions.drop([i for i in questions if 'Unnamed' in i],axis=1,inplace=True)
 	questions=questions.T
-	questions.columns=['parent', 'type', 'Treatment', 'question']
+	questions.columns=['parent', 'type', 'Treatment', 'Other','question']
 	codes=pd.read_csv('codes.csv',index_col=None,sep='\t').dropna(how='any',subset=['color'])
 	continues=pickle.load( open( "cont_feat.p", "rb" ) )
 	cat_cols=pickle.load( open( "cat_cols.p", "rb" ) )
@@ -231,16 +229,15 @@ data,correl,questions,codes,continues,cat_cols,dummy_cols=load_data()
 #st.write(continues)
 ######################faudra surement aussi récupérer d'autres trucs sur les types de données des int_cat et int_cat_desc############################
 #st.write('categorical:',cat_cols)
-st.write(correl)
+#st.write(correl)
 #st.write(questions)
 #st.write(codes)
 
 def main():
-	
 	L=[]
 	graphs=pd.read_csv('graphs.csv',index_col=0,sep='\t')
 	#st.write(graphs)
-	q1 = st.sidebar.selectbox('Main question:', [None]+[i for i in correl.columns if i not in L][45:])
+	q1 = st.sidebar.selectbox('Main question:', [None]+[i for i in correl][62:])
 	if q1 != None:
 		df=selectdf(q1)
 		
@@ -252,13 +249,13 @@ def main():
 		
 		if q1 in cat_cols:	
 			
-			if q1=='position ':
-				fig =px.scatter(df, x="position longitude", y="position latitude")
+			if q1=='usage':
+				fig =px.box(df,y=[i for i in df.columns if 'usage' in i],points='all')
 			
 			
 			else:
 				cats=[' '.join(i.split(' ')[1:]) for i in quests1]
-				fig = px.bar(x=cats, y=df[quests1].applymap(lambda x:1 if x=='Yes' else 0).sum(), labels={'y':'People'})	#.applymap(lambda x:1 if x=='Yes' else 0).sum()
+				fig = px.bar(x=cats, y=df[quests1].applymap(lambda x:1 if x==1 else 0).sum(), labels={'y':'People'})	#.applymap(lambda x:1 if x=='Yes' else 0).sum()
 			col1, col2 = st.columns([1,3])
 			col1.write('Donnée multiple')
 			col1.write(q1)
@@ -270,13 +267,15 @@ def main():
 			st.write(questions.loc[q1]['question'])
 			fig=px.histogram(df, x=q1,color_discrete_sequence=['green'])
 			st.plotly_chart(fig)
-			
+
+		st.write(correl[q1])
 #Visualisation des 6 paramètres le splus importants pour la prédiction			
 			
 		if st.sidebar.checkbox('Do you want to generate graphs with other potential correlated questions?'):	
 			keeps={}
 			
 			for q2 in q2_list:
+				st.write(correl[q1][q2])
 				quests2=[i for i in df.columns if q2 in i] if q2 in cat_cols else [q2]
 				if q2 in cat_cols:
 					st.subheader(q2+': '+', '.join(quests2))			

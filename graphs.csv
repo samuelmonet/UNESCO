@@ -1,13 +1,23 @@
 variable_x	variable_y	description	xtitle	ytitle	legendtitle	title	graphtype
-village	income_source	In Barey there are much more casual labours than in the other villages	Village		 	Main source of income per village	bar
-village	D1Mainsourcewaterdry	Given that protected dug wells were of importance for the prediction of increase of productivity (As per Machine Learning results), this could be interesting.				Main source of water in dry season per village	treemap
-village	D1Mainsourcewaterrainy	We can see for instance that Bananey, Gumbe and Bulo Waray rely mainly on tubewell/boreholes during the dry season and on surface water during rainy season.				Main source of water in rainy season per village	treemap
-village	incomepermember	In Kongo and Bananey there are a big dispersion of income per person.	Village	Income per member of the household	 	Distribution of income per household member per village	violin
-village	canalworkingwell	The only mention of not working rehabilitated canals are in Bulo Waray and in Gafay	Village	  	Canals working well ?	Are the rehabilitated canals working well per village	bar
-canalworkingwell	residency	Among the one who mention that the rehabilitated canal are working well 95 % are host while among the one who say that they are not 75 % are either IDPs or returnees.	Residency status	  	 	Are the rehabilitated canals working well per residency status	bar
-WaterTreatKit	whashhandhow	Those who did not receive any water treatment kits are more likely to only wash their hands with water. This tend to show the effective impact of water treatment kits distribution.	Did you receive water treatment kits ?		  	What people wash their hands with VS beneficiary of water treatment kits	bar
-residency	whashhandhow	IDPs are almost never using anything else than water to wash their hands. Maybe they should be prioritize for sensitisation and/or water treatment kits.	Residency status		 	What do you wash your hands with mainly? VS Residency status	bar
-productivity_increased	receive_agrisupport	98 % of people who received agricultural support from CEFA say their agricultural productivity increased as a result of the project.	Did your agricultural productivity increase ?		Beneficiary of agricultural support ?	Increase of agrucultural productivity VS beneficiary of agricultural support from CEFA	bar
-productivity_increased	timewaterdry	Those who say their agricultural productivity increased as a result of the project usually spend less time collecting water during the dry season.	Did your agricultural productivity increase ?	Time spent per day in minute to <br> collect water during dry season		Distribution of time to collect water during the dry season according whether the agricultural productivity has increased as a result of the project	violin
-B3what 	income	Cultivators of melons and cabbages are usually richer	What are you cultivating on your land ?	Monthly income in USD		Distribution of income per family member per crop cultivated	violin
-B1_own_land	increasedarea	We can see that people who own land almost all agree that the rehabilitation of canals has increased the area under irrigation in the community while among those who do not own land over half believe it has not.	Do you own land?		Area under irrigation increased ?	Has the rehabilitation of irrigation canals increased the area under irrigation in the community according to whether the household owns land.	bar
+Village_clean	use1	The use of cash varies a lot from one village to another				Main use of cash per village	treemap
+Village_clean	Total_CFW_earned_per_familymember	Looking at the cash received per familoy member it varies a lot from one village to another	Village	Total cash received from CFW per family member		Distribution of total cash received from CFW per family member per village	violin
+Village_clean	Total_CFW_earned_USD	Same for value	Village	Total cash received from CFW 		Distribution of total cash received from CFW per village	violin
+Village_clean	investment		Village	Investment		Distribution of investment level per village	violin
+Village_clean	leave	Plans for leaving the country varies a lot from one village to another	Village		 Are you planning to leave the country?	Plans for leaving per village	bar
+Village_clean	effect_lasted					Duration of CFW effect per village	violin
+Village_clean	increased_exp 						treemap
+Village_clean	usage8	Almost only in Bayt bus did people purchase meat					bar
+Village_clean	why_selected						bar
+Village_clean	level_effort						bar
+Village_clean	salary_corect						bar
+Village_clean	project_lasted						violin
+Village_clean	femalecontrib%						violin
+Village_clean	cashspend_Women%						violin
+diffcult_months 	use1						treemap
+increased_exp 	project_lasted	The longer the project lasted the more likely we see some specific expenses increase (meat, milk, shool….)		How long the cash by the CFW project received lasted? (months)			violin
+gender resp	increased_exp 	The perception of what increased seems to be very different according to male and female respondents					treemap
+cashspend_num	cashspend_HH_member_%	The more the decision is shared among all adults member of the household the longer the cash effects lasted		Percentage of adultmember contributing to decision on usage of cash			violin
+educ_median	cashspend_Women%						violin
+gender HHH	contrib%						violin
+use1	cfw_worker_women%						violin
+educ_mean	cashspend_Women%						violin
