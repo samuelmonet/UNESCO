@@ -11,6 +11,7 @@ import pydeck as pdk
 import re
 from collections import Counter
 from PIL import Image
+from joypy import joyplot
 
 #import variables
 
@@ -33,22 +34,18 @@ def load_data():
 	correl=pd.read_csv('graphs.csv',sep='\t')
 	questions=pd.read_csv('questions.csv',sep='\t')
 	questions.drop([i for i in questions.columns if 'Unnamed' in i],axis=1,inplace=True)
-	quest=questions.iloc[3].to_dict()
+	quest=questions.iloc[4].to_dict()
 	questions=questions.T
-	sankey=questions[questions[1]=='sankey'].index.tolist()
-	ridge = questions[questions[1] == 'Viz'].index.tolist()
+
 	codes=pd.read_csv('codes.csv',index_col=None,sep='\t').dropna(how='any',subset=['color'])
 	
-	return data,correl,quest,codes,sankey,ridge
+	return data,correl,quest,codes
 
-data,correl,questions,codes,sankey,ridge=load_data()
-
-
-#st.write(sankey)
+data,correl,questions,codes=load_data()
+#st.write(questions)
 #st.dataframe(correl)
 #st.write(data.columns)
 #st.write(correl.shape)
-
 def sankey_graph(data,L,height=600,width=1600):
     """ sankey graph de data pour les catégories dans L dans l'ordre et 
     de hauter et longueur définie éventuellement"""
@@ -254,7 +251,7 @@ def main():
 
 	
 	topic = st.sidebar.radio('What do you want to do ?',('Display machine learning results','Display correlations',\
-		'Display Sankey Graphs','Wordcloud'))
+		'Display Other visuals','Analyze Wordclouds'))
 	title3.image(img2)
 		
 	
@@ -332,22 +329,14 @@ def main():
 		
 	elif topic=='Display correlations':	
 		
-		st.title('Main correlations uncovered from the database: NOT YET COMPLETE')
+		st.title('Main correlations uncovered from the database:	')
 		st.write('Note: Correlation does not mean causation. This is not because 2 features are correlated that one is the cause of the other. So conclusion have to be made with care.')
 		continues=pickle.load( open( "cont_feat.p", "rb" ) )
 		cat_cols=pickle.load( open( "cat_cols.p", "rb" ) )
 		
 				
 		quests=correl[correl['variable_x'].fillna('').apply(lambda x: True if 'region' not in x else False)]
-		
-		#st.write(quest)
-		#st.write(codes)
-		#st.write(cat_cols)
-		
-		#st.write(data['assistancetype'].value_counts())
-		
-			
-							
+
 		for absc in quests['variable_x'].unique():
 			
 			k=0
@@ -372,7 +361,7 @@ def main():
 					df=pd.DataFrame(columns=[cat,autre])
 					
 					catcols=[j for j in datas.columns if cat in j]
-					cats=[' '.join(i.split(' ')[1:])[:57] for i in catcols]
+					cats=[' '.join(i.split(' ')[1:]) for i in catcols]
 				
 					for n in range(len(catcols)):
 						ds=datas[[catcols[n],autre]].copy()
@@ -381,11 +370,8 @@ def main():
 						ds.columns=[cat,autre]
 						df=df.append(ds)
 					df['persons']=np.ones(len(df))		
-					#st.write(df)		
-					
+					#st.write(df)
 					#st.write(quest.iloc[i]['graphtype'])
-						
-									
 				else:	
 					df=datas[[quest.iloc[i]['variable_x'],quest.iloc[i]['variable_y']]].copy()
 					df['persons']=np.ones(len(df))
@@ -395,28 +381,17 @@ def main():
 					fig = px.sunburst(df.fillna(''), path=[quest.iloc[i]['variable_x'], quest.iloc[i]['variable_y']], 	values='persons',color=quest.iloc[i]['variable_y'])
 					#fig.update_layout(title_text=quest.iloc[i]['variable_x'] + ' and ' +quest.iloc[i]['variable_y'],font=dict(size=20))
 					st.plotly_chart(fig,size=1000)
-					
-					
-					
-				
 				elif quest.iloc[i]['graphtype']=='treemap':
-					
 					st.subheader(quest.iloc[i]['title'])
 					#fig=go.Figure()
 					#fig.add_trace(go.Treemap(branchvalues='total',labels=data[quest.iloc[i]['variable_x']],parents=data[quest.iloc[i]['variable_y']],
 					#			  root_color="lightgrey",textinfo="label+value"))
 					fig=px.treemap(df, path=[quest.iloc[i]['variable_x'], quest.iloc[i]['variable_y']],
 								   values='persons',color=quest.iloc[i]['variable_y'])
-
 					st.plotly_chart(fig,use_container_width=True)
 					st.write(quest.iloc[i]['description'])
-					
-				
-					
 				elif quest.iloc[i]['graphtype']=='violin':
-					
 					fig = go.Figure()
-				
 					if quest.iloc[i]['variable_x'].split(' ')[0] in codes['list name'].unique():
 						categs = codes[codes['Id']==quest.iloc[i]['variable_x'].split(' ')[0]].sort_values(by='coding')['label'].tolist()
 					elif quest.iloc[i]['variable_x']=='Village_clean':
@@ -432,11 +407,11 @@ def main():
 
 
 					for categ in categs:
-					    fig.add_trace(go.Violin(x=df[quest.iloc[i]['variable_x']][df[quest.iloc[i]['variable_x']] == str(categ)],
-		                            		y=df[quest.iloc[i]['variable_y']][df[quest.iloc[i]['variable_x']] == str(categ)],
-		                            		name=categ,
-		                            		box_visible=True,
-        	                   			meanline_visible=True,points="all",))
+						fig.add_trace(go.Violin(x=df[quest.iloc[i]['variable_x']][df[quest.iloc[i]['variable_x']] == str(categ)],
+										y=df[quest.iloc[i]['variable_y']][df[quest.iloc[i]['variable_x']] == str(categ)],
+										name=categ,
+										box_visible=True,
+										meanline_visible=True,points="all",))
 
 					fig.update_layout(showlegend=False)
 					fig.update_yaxes(range=[-0.1, df[quest.iloc[i]['variable_y']].max()+1])
@@ -474,61 +449,230 @@ def main():
 				
 	
 		
-	elif topic=='Display Sankey Graphs: NOT YET COMPLETE':
+	elif topic=='Display Other visuals':
 	
-		title1.title('Visuals for questions related to cultures (Some of questions B3 to B17)')
+		st.title('Rank how have you used the cash received?')
+		st.write('You can move the box with the mouse and increase the size of the plot on the right corner if you need')
+
+		sank=data[['use1','use2','use3']].copy()
+		L = ['Wheat flour', 'Rice', 'Qhat', 'Tools', 'Clothes', 'Health', 'Meat', 'Education']
+		sank['use1'] = sank['use1'].apply(lambda x: x if x in L else 'Other')
+
+		st.markdown("""---""")
+
+		st.write('First main usage - Second main usage - Third main usage')
+		fig=sankey_graph(sank,['use1','use2','use3'],height=900,width=1500)
+		fig.update_layout(plot_bgcolor='black', paper_bgcolor='grey')
+		st.plotly_chart(fig, use_container_width=True,height=900,t_margin=0,b_margin=0)
+
+		st.markdown("""---""")
+
+		st.title('Distribution of percentages of use of the cash received per category')
 		st.title('')
-		
+
+		df = pd.DataFrame(columns=['usage', 'percentage'])
+		for i in range(1, 27):
+			dftemp = pd.DataFrame(columns=['usage', 'village', 'percentage'])
+			dftemp['usage'] = np.ones(len(data))
+			dftemp['usage'] = dftemp['usage'].apply(lambda x: questions['usage'+str(i)])
+			dftemp['percentage'] = data['usage' + str(i)]
+			dftemp['village'] = data['Village_clean']
+			df = df.append(dftemp)
+		df = df[df['percentage'] > 0]
+		fig, ax = joyplot(
+			data=df,
+			by='usage',
+		)
+		st.pyplot(fig)
+
+	elif topic == 'Analyze Wordclouds':
+
+		quest_list = ['Reason why the selected month is difficult',
+					'Do you know why you were selected to participate in this project ?',
+					'Which type of training would you like to receive?',
+					'Explain which changes occurred in your life thanks to the CFW',
+					'Explain what happened to others youth in similar needs of CFW who did not access the program',
+					'Enter livelihood category',
+					'Which skills did you learn ?',
+					'What are you doing NOW in terms of incomes generation?',
+					'What would stop you to do more of this work ?',
+					'Most important things you learnt during this cash for work project in terms of Yemeni history',
+					'Most important things you learnt during this cash for work project in terms of importance of historical sites']
+		child = False
+		x, y = np.ogrid[100:500, :600]
+		mask = ((x - 300) / 2) ** 2 + ((y - 300) / 3) ** 2 > 100 ** 2
+		mask = 255 * mask.astype(int)
+
+		title1.title('Wordclouds for open questions')
+
+		feature = st.selectbox(
+				'Select the question for which you would like to visualize wordclouds of answers', quest_list)
+
+######## months difficult ############
+
+		if feature == 'Reason why the selected month is difficult':
+			months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+			feats=[i for i in data if 'reason' in i]
+			col1, col2, col3 = st.columns([2, 1, 2])
+			df = data[feats].applymap(lambda x:'' if x=='0' else x).copy()
+
+			corpus=''
+			for n in range(12):
+				corpus += ' '.join(df[feats[n]])
+				corpus = re.sub('[^A-Za-z ]', ' ', corpus)
+				corpus = re.sub('\s+', ' ', corpus)
+				corpus = corpus.lower()
+			sw = st.multiselect('Select words you would like to remove from the wordclouds \n\n',
+								[i[0] for i in Counter(corpus.split(' ')).most_common() if i[0] not in STOPWORDS][:20])
 
 
-		st.markdown("""---""")
-		st.write('Seeds Planted - Did you practice any irrigation for this crop? - ')
-		fig=sankey_graph(data,sankey,height=600,width=1500)
-		fig.update_layout(plot_bgcolor='black', paper_bgcolor='grey', width=1500)
-		
 
-		st.markdown("""---""")
-		
-		if st.checkbox('Design my own Sankey Graph'):
-			
-			st.markdown("""---""")
-			feats=st.multiselect('Select features you want to see in the order you want them to appear', [questions['productivity_increased']]+colonnes)
-			
-			if len(feats)>=2:
-				st.write(' - '.join(feats))
-				a=False
-				for i in feats:
-					if i in colonnes:
-						a=True
-				if a:
-					df=sank.copy()
+			col1, col3 = st.columns([2, 2])
+
+			for n in range(12):
+
+				col_corpus = ' '.join(df[feats[n]].dropna())
+				col_corpus = re.sub('[^A-Za-z ]', ' ', col_corpus)
+				col_corpus = re.sub('\s+', ' ', col_corpus)
+				col_corpus = col_corpus.lower()
+				if col_corpus == ' ' or col_corpus == '':
+					col_corpus = 'No_response'
 				else:
-					df=data_all
-				
-				features=[]
-				for i in feats:
-					if i in colonnes:
-						features.append(i)
-					else:
-						features.append([n for n in questions if questions[n]==i][0])
-				
-				#st.write(features)
-				
-				fig3=sankey_graph(df,features,height=600,width=1500)
-				fig3.update_layout(plot_bgcolor='black', paper_bgcolor='grey', width=1500)
-				st.plotly_chart(fig3,use_container_width=True)
-		
-		
-	
-	
-	
+					col_corpus = ' '.join([i for i in col_corpus.split(' ') if i not in sw])
+				wc = WordCloud(background_color="#0E1117", repeat=False, mask=mask)
+				wc.generate(col_corpus)
+				if n%2 == 0:
+					col1.subheader(months[n])
+					col1.image(wc.to_array(), use_column_width=True)
+				else:
+					col3.subheader(months[n])
+					col3.image(wc.to_array(), use_column_width=True)
 
-    
- 
-if __name__== '__main__':
-    main()
+####### Learnings from Project ######
+
+		elif feature in quest_list[-2:]:
+
+			if 'Yemeni' in feature:
+				colonnes=['learning1','learning2','learning3']
+				titles=['First','Second','Third']
+			else:
+				colonnes = ['protection_learning1', 'protection_learning2', 'protection_learning3']
+				titles = ['First','Second','Third']
+
+			df = data.copy()
+
+			corpus = ' '.join(data[colonnes[0]].dropna()) + \
+					 ' '.join(data[colonnes[1]].dropna()) + ' '.join(data[colonnes[2]].dropna())
+			corpus = re.sub('[^A-Za-z ]', ' ', corpus)
+			corpus = re.sub('\s+', ' ', corpus)
+			corpus = corpus.lower()
+			sw = st.multiselect('Select words you would like to remove from the wordclouds \n\n',
+								[i[0] for i in Counter(corpus.split(' ')).most_common() if i[0] not in STOPWORDS][:20])
+			col1, col2, col3 = st.columns([1, 1, 1])
+			for i in range(3):
+				col_corpus = ' '.join(df[colonnes[i]].dropna())
+				col_corpus = re.sub('[^A-Za-z ]', ' ', col_corpus)
+				col_corpus = re.sub('\s+', ' ', col_corpus)
+				col_corpus = col_corpus.lower()
+				if col_corpus == ' ' or col_corpus == '':
+					col_corpus = 'No_response'
+				else:
+					col_corpus = ' '.join([i for i in col_corpus.split(' ') if i not in sw])
+				wc = WordCloud(background_color="#0E1117", repeat=False, mask=mask)
+				wc.generate(col_corpus)
+				if i == 0:
+					col1.subheader(titles[0])
+					col1.image(wc.to_array(), use_column_width=True)
+				elif i == 1:
+					col2.subheader(titles[1])
+					col2.image(wc.to_array(), use_column_width=True)
+				else:
+					col3.subheader(titles[2])
+					col3.image(wc.to_array(), use_column_width=True)
+
+		else:
+			d={'Do you know why you were selected to participate in this project ?':'why',
+				'Which type of training would you like to receive?':'trainings',
+				'Explain which changes occurred in your life thanks to the CFW':'changes',
+				'Explain what happened to others youth in similar needs of CFW who did not access the program':'youth',
+				'Enter livelihood category':'Livelihood category',
+				'Which skills did you learn ?':'skills',
+				'What are you doing NOW in terms of incomes generation?':'income_generation',
+				'What would stop you to do more of this work ?':'More_work_no_explain'}
+			col_corpus = ' '.join(data[d[feature]].apply(lambda x: '' if x in ['I do not know','There is no','None'] else x).dropna())
+			col_corpus = re.sub('[^A-Za-z ]', ' ', col_corpus)
+			col_corpus = re.sub('\s+', ' ', col_corpus)
+			col_corpus = col_corpus.lower()
+			sw = st.multiselect('Select words you would like to remove from the wordclouds \n\n',
+								[i[0] for i in Counter(col_corpus.split(' ')).most_common() if i[0] not in STOPWORDS][:20])
+			if col_corpus == ' ' or col_corpus == '':
+				col_corpus = 'No_response'
+			else:
+				col_corpus = ' '.join([i for i in col_corpus.split(' ') if i not in sw])
+
+
+			wc = WordCloud(background_color="#0E1117", repeat=False, mask=mask)
+			wc.generate(col_corpus)
+
+			col1, col2, col3 = st.columns([1,4,1])
+
+			col2.image(wc.to_array(), use_column_width=True)
+
+			# LEARNINGS
+			# if st.checkbox('Would you like to filter Wordcloud according to other questions'):
+			#
+			# 	feature2 = st.selectbox('Select one question to filter the wordcloud',
+			# 							[questions[i]['question'] for i in questions.columns if
+			# 							 i not in text and i != 'UniqueID'])
+			# 	filter2 = [i for i in questions if questions[i]['question'] == feature2][0]
+			#
+			# 	if filter2 in continues:
+			# 		minimum = st.slider('Select the minimum value you want to visulize',
+			# 							min_value=datas[filter2].fillna(0).min(),
+			# 							max_value=data[filter2].fillna(0).max())
+			# 		maximum = st.slider('Select the maximum value you want to visulize', min_value=minimum,
+			# 							max_value=datas[filter2].fillna(0).max())
+			# 		df = datas[(datas[filter2] >= minimum) & (datas[filter2] <= maximum)]
+			#
+			# 	else:
+			# 		filter3 = st.multiselect('Select the responses you want to include',
+			# 								 [i for i in datas[filter2].unique()])
+			# 		df = datas[datas[filter2].isin(filter3)]
+			#
+			# 	for benef in ['All beneficiaries', 'Livelihood beneficiaries', 'Protection beneficiaries']:
+			# 		if benef == 'All beneficiaries':
+			# 			df2 = df.copy()
+			# 		elif benef == 'Livelihood beneficiaries':
+			# 			df2 = df[df['section'] == 'FSL+(Respondent profile and Overall perception)']
+			# 		else:
+			# 			df2 = df[df['section'] == 'Protection&CCM+(Respondent profile and Overall perception)']
+			#
+			# 		st.subheader(benef + ' ' + str(len(df2)) + ' persons')
+			#
+			# 		col1, col2, col3 = st.columns([1, 1, 1])
+			# 		for i in range(3):
+			# 			col_corpus = ' '.join(df2[colonnes[i]].dropna())
+			# 			col_corpus = re.sub('[^A-Za-z ]', ' ', col_corpus)
+			# 			col_corpus = re.sub('\s+', ' ', col_corpus)
+			# 			col_corpus = col_corpus.lower()
+			# 			if col_corpus == ' ' or col_corpus == '':
+			# 				col_corpus = 'No_response'
+			# 			else:
+			# 				col_corpus = ' '.join([i for i in col_corpus.split(' ') if i not in sw])
+			# 			wc = WordCloud(background_color="#0E1117", repeat=False, mask=mask)
+			# 			wc.generate(col_corpus)
+			# 			if i == 0:
+			# 				col1.subheader('Recommandation 1')
+			# 				col1.image(wc.to_array(), use_column_width=True)
+			# 			elif i == 1:
+			# 				col2.subheader('Recommandation 2')
+			# 				col2.image(wc.to_array(), use_column_width=True)
+			# 			else:
+			# 				col3.subheader('Recommandation 3')
+			# 				col3.image(wc.to_array(), use_column_width=True)
 
 
 
 
-    
+if __name__ == '__main__':
+	main()
