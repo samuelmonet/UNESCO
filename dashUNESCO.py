@@ -28,6 +28,7 @@ st.set_page_config(layout="wide")
 def load_data():
 	data = pd.read_csv('viz.csv',sep='\t')
 	data.drop([i for i in data if 'Unnamed' in i],axis=1,inplace=True)
+	data['Village_clean']=data['Village_clean'].apply(lambda x: 'Al-Samoud' if x== 'Al-Samoud neighborhood alone, the martyr Badr' else x)
 	data['cashspend_num']=data['cashspend_num'].astype('str')
 	correl=pd.read_csv('graphs.csv',sep='\t')
 	questions=pd.read_csv('questions.csv',sep='\t')
@@ -41,6 +42,7 @@ def load_data():
 	return data,correl,quest,codes,sankey,ridge
 
 data,correl,questions,codes,sankey,ridge=load_data()
+
 
 #st.write(sankey)
 #st.dataframe(correl)
@@ -136,10 +138,10 @@ def count2(abscisse,ordonnée,dataf,legendtitle='',xaxis=''):
 	agg2=agg2.T*100
 	agg2=agg2.astype(int)
     
-	if abscisse=='dam ':
-		agg=agg.reindex(['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'])
-		agg2=agg2.reindex(['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'])
-    
+	if abscisse=='Village_clean':
+		agg=agg.reindex(['Alqatie','Bayt bus','Hayu aleumaal','Hadah',"Anma'",'Aljamie','Al-Samoud',"Sanea' alqadimuh",'Zubid'])
+		agg2=agg2.reindex(['Alqatie','Bayt bus','Hayu aleumaal','Hadah',"Anma'",'Aljamie','Al-Samoud',"Sanea' alqadimuh",'Zubid'])
+
 	x=agg.index
     
 	#st.write(agg)
@@ -187,6 +189,16 @@ def pourcent2(abscisse,ordonnée,dataf,legendtitle='',xaxis=''):
 	agg2=dataf[[abscisse,ordonnée]].groupby(by=[abscisse,ordonnée]).aggregate({abscisse:'count'}).unstack().fillna(0)
 	agg=agg2.T/agg2.T.sum()
 	agg=agg.T.round(2)*100
+
+	if abscisse == 'Village_clean':
+		agg = agg.reindex(
+			['Alqatie', 'Bayt bus', 'Hayu aleumaal', 'Hadah', "Anma'", 'Aljamie', 'Al-Samoud', "Sanea' alqadimuh",
+			 'Zubid'])
+		agg2 = agg2.reindex(
+			['Alqatie', 'Bayt bus', 'Hayu aleumaal', 'Hadah', "Anma'", 'Aljamie', 'Al-Samoud', "Sanea' alqadimuh",
+			 'Zubid'])
+
+	x = agg.index
 
 	x=agg2.index
     
@@ -390,9 +402,12 @@ def main():
 				elif quest.iloc[i]['graphtype']=='treemap':
 					
 					st.subheader(quest.iloc[i]['title'])
-					fig=px.treemap(df, path=[quest.iloc[i]['variable_x'], quest.iloc[i]['variable_y']], values='persons',color=quest.iloc[i]['variable_y'])
-					#fig.update_layout(title_text=quest.iloc[i]['title'],font=dict(size=20))
-					
+					#fig=go.Figure()
+					#fig.add_trace(go.Treemap(branchvalues='total',labels=data[quest.iloc[i]['variable_x']],parents=data[quest.iloc[i]['variable_y']],
+					#			  root_color="lightgrey",textinfo="label+value"))
+					fig=px.treemap(df, path=[quest.iloc[i]['variable_x'], quest.iloc[i]['variable_y']],
+								   values='persons',color=quest.iloc[i]['variable_y'])
+
 					st.plotly_chart(fig,use_container_width=True)
 					st.write(quest.iloc[i]['description'])
 					
@@ -403,8 +418,15 @@ def main():
 					fig = go.Figure()
 				
 					if quest.iloc[i]['variable_x'].split(' ')[0] in codes['list name'].unique():
-						categs = codes[codes['Id']==quest.iloc[i]['variable_x'].split(' ')[0]].sort_values(by='coding')['label'].tolist()				
-					
+						categs = codes[codes['Id']==quest.iloc[i]['variable_x'].split(' ')[0]].sort_values(by='coding')['label'].tolist()
+					elif quest.iloc[i]['variable_x']=='Village_clean':
+						categs=['Alqatie','Bayt bus','Hayu aleumaal','Hadah',"Anma'",'Aljamie','Al-Samoud',"Sanea' alqadimuh",'Zubid']
+					elif quest.iloc[i]['variable_x']== 'cashspend_num':
+						categs=['0','1','2','3','4']
+					elif quest.iloc[i]['variable_x']=='educ_mean':
+						categs=['Koranic school','Some primary school','Completed primary school',
+								'Some secondary school','Completed secondary school','University']
+
 					else:
 						categs = df[quest.iloc[i]['variable_x']].unique()
 
