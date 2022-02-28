@@ -1,6 +1,6 @@
 variable_x	variable_y	classification	description	xtitle	ytitle	legendtitle	title	graphtype
 Village_clean	use1	village	The use of cash varies a lot from one village to another and if we look at the graph below we can see that it is in the villages where the people received the biggest amount that the cash was mainly used for Qhat.				Main use of cash per village	treemap
-Village_clean	Total_CFW_earned_USD	village	The total cash received varies a lot from one village to another		Total cash received from CFW		Distribution of total cash received from CFW per family member per village	violin
+Village_clean	Total_CFW_earned_USD	village	The total cash received varies a lot from one village to another		Total cash received from CFW		Distribution of total cash received from CFW per village	violin
 Village_clean	investment	village	The level of investment is also quite different from one village to another and it seems to be correlated to the amount of cash received from CFW.	Village	 Level of annual investment		Distribution of level of annual investment for livelihood per village	violin
 Village_clean	leave	village	People having plans for leaving are mainly from Eden and Sanaa Governorate	Village		 Are you planning to leave the country?	Plans for leaving per village	bar
 Village_clean	femalecontrib%	village	We only see contribution of women in the income of the household in certain villages.		Percentage of women among adults <br>contributing to income generation		Distribution of percentage of women among adults contributing to income generation per village	violin
