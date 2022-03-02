@@ -15,7 +15,6 @@ from joypy import joyplot
 st.set_page_config(layout="wide")
 
 
-@st.cache
 def load_data():
 	data = pd.read_csv('viz2.csv', sep='\t')
 	data.drop([i for i in data if 'Unnamed' in i], axis=1, inplace=True)
