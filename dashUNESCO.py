@@ -19,7 +19,7 @@ st.set_page_config(layout="wide")
 def load_data():
 	data = pd.read_csv('viz2.csv', sep='\t')
 	data.drop([i for i in data if 'Unnamed' in i], axis=1, inplace=True)
-	
+
 	data['Village_clean'] = data['Village_clean'].apply(lambda x: 'Al-Samoud' if
 														x == 'Al-Samoud neighborhood, Alshhid Badr unit' else x)
 	data['cashspend_num'] = data['cashspend_num'].astype('str')
@@ -522,19 +522,19 @@ def main():
 										[questions[i] for i in data if i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
-					a = data[filter2].astype(float).copy()
+					df[filter2] = df[filter2].astype(float)
 					minimum = st.slider('Select the minimum value you want to visulize',
 										min_value=float(a.min()),
 										max_value=float(a.max()),
 										value=float(a.min())
 										)
 					maximum = st.slider('Select the maximum value you want to visulize', min_value=minimum,
-										max_value=a.max(),value=a.max())
-					df = data[(data[filter2] >= minimum) & (data[filter2] <= maximum)]
+										max_value=float(a.max()),value=float(a.max()))
+					df = df[(df[filter2] >= minimum) & (df[filter2] <= maximum)]
 				else:
 					filter3 = st.multiselect('Select the responses you want to include',
-											 [i for i in data[filter2].unique()])
-					df = data[data[filter2].isin(filter3)]
+											 [i for i in df[filter2].unique()])
+					df = df[df[filter2].isin(filter3)]
 				#st.write(colonnes)
 				col1, col2, col3 = st.columns([1, 1, 1])
 				for i in range(3):
@@ -588,17 +588,17 @@ def main():
 										 i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
-					a=data[filter2].astype(float)
+					a=df[filter2].astype(float)
 					threshold = st.slider('Select threshold value you want to visualize',
 										min_value=float(a.min()),
 										max_value=float(a.max()),
 										value=float(a.min())
 										)
-					DF=[data[data[filter2] <= threshold][d[feature]], data[data[filter2] > threshold][d[feature]]]
+					DF=[df[df[filter2] <= threshold][d[feature]], df[df[filter2] > threshold][d[feature]]]
 					titres=['Response under '+str(threshold),'Response over '+str(threshold)]
 				else:
-					DF=[data[data[filter2] == j][d[feature]] for j in data[filter2].unique()]
-					titres=['Responded : '+j for j in data[filter2].unique()]
+					DF=[df[df[filter2] == j][d[feature]] for j in df[filter2].unique()]
+					titres=['Responded : '+j for j in df[filter2].unique()]
 				col1, col2 = st.columns([1, 1])
 				for i in range(len(DF)):
 					col_corpus = ' '.join(DF[i].dropna())
