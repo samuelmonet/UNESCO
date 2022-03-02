@@ -15,6 +15,7 @@ from joypy import joyplot
 st.set_page_config(layout="wide")
 
 
+@st.cache
 def load_data():
 	data = pd.read_csv('viz2.csv', sep='\t')
 	data.drop([i for i in data if 'Unnamed' in i], axis=1, inplace=True)
@@ -523,14 +524,14 @@ def main():
 										[questions[i] for i in data if i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
-					#data[filter2] = data[filter2].astype(float)
+					a = data[filter2].astype(float).copy()
 					minimum = st.slider('Select the minimum value you want to visulize',
-										min_value=float(data[filter2].fillna(0).min()),
-										max_value=float(data[filter2].fillna(0).max()),
-										value=float(data[filter2].fillna(0).min())
+										min_value=float(a.min()),
+										max_value=float(a.max()),
+										value=float(a.min())
 										)
 					maximum = st.slider('Select the maximum value you want to visulize', min_value=minimum,
-										max_value=data[filter2].fillna(0).max(),value=data[filter2].fillna(0).max())
+										max_value=a.max(),value=a.max())
 					df = data[(data[filter2] >= minimum) & (data[filter2] <= maximum)]
 				else:
 					filter3 = st.multiselect('Select the responses you want to include',
@@ -589,11 +590,11 @@ def main():
 										 i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
-					#data[filter2]=data[filter2].astype(float)
+					a=data[filter2].astype(float)
 					threshold = st.slider('Select threshold value you want to visualize',
-										min_value=float(data[filter2].fillna(0).min()),
-										max_value=float(data[filter2].fillna(0).max()),
-										value=float(data[filter2].fillna(0).min())
+										min_value=float(a.min()),
+										max_value=float(a.max()),
+										value=float(a.min())
 										)
 					DF=[data[data[filter2] <= threshold][d[feature]], data[data[filter2] > threshold][d[feature]]]
 					titres=['Response under '+str(threshold),'Response over '+str(threshold)]
