@@ -450,7 +450,8 @@ def main():
 					  'November', 'December']
 			feats=[i for i in data if 'reason' in i]
 			col1, col2, col3 = st.columns([2, 1, 2])
-			df = data[feats].applymap(lambda x : '' if x == '0' else x).copy()
+			df=data.copy()
+			df = df[feats].applymap(lambda x : '' if x == '0' else x).copy()
 
 			corpus=''
 			for n in range(12):
@@ -489,8 +490,8 @@ def main():
 				colonnes = ['protection_learning1', 'protection_learning2', 'protection_learning3']
 				titles = ['First', 'Second', 'Third']
 			df = data.copy()
-			corpus = ' '.join(data[colonnes[0]].dropna()) + \
-					 ' '.join(data[colonnes[1]].dropna()) + ' '.join(data[colonnes[2]].dropna())
+			corpus = ' '.join(df[colonnes[0]].dropna()) + \
+					 ' '.join(df[colonnes[1]].dropna()) + ' '.join(df[colonnes[2]].dropna())
 			corpus = re.sub('[^A-Za-z ]', ' ', corpus)
 			corpus = re.sub('\s+', ' ', corpus)
 			corpus = corpus.lower()
@@ -566,7 +567,7 @@ def main():
 				'Which skills did you learn ?' : 'skills',
 				'What are you doing NOW in terms of incomes generation?' : 'income_generation',
 				'What would stop you to do more of this work ?' : 'More_work_no_explain'}
-			col_corpus = ' '.join(data[d[feature]].apply(lambda x : '' if x in ['I do not know', 'There is no', 'None']
+			col_corpus = ' '.join(df[d[feature]].apply(lambda x : '' if x in ['I do not know', 'There is no', 'None']
 																		else x).dropna())
 			col_corpus = re.sub('[^A-Za-z ]', ' ', col_corpus)
 			col_corpus = re.sub('\s+', ' ', col_corpus)
