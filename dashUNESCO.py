@@ -19,6 +19,9 @@ st.set_page_config(layout="wide")
 def load_data():
 	data = pd.read_csv('viz2.csv', sep='\t')
 	data.drop([i for i in data if 'Unnamed' in i], axis=1, inplace=True)
+	continues = pickle.load(open("cont_feat.p", "rb"))
+	for i in continues:
+		data[i] = data[i].astype(float)
 	data['Village_clean'] = data['Village_clean'].apply(lambda x: 'Al-Samoud' if
 														x == 'Al-Samoud neighborhood, Alshhid Badr unit' else x)
 	data['cashspend_num'] = data['cashspend_num'].astype('str')
@@ -521,6 +524,7 @@ def main():
 										[questions[i] for i in data if i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
+					#data[filter2] = data[filter2].astype(float)
 					minimum = st.slider('Select the minimum value you want to visulize',
 										min_value=float(data[filter2].fillna(0).min()),
 										max_value=float(data[filter2].fillna(0).max()),
@@ -586,7 +590,7 @@ def main():
 										 i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
-					data[filter2]=data[filter2].astype(float)
+					#data[filter2]=data[filter2].astype(float)
 					threshold = st.slider('Select threshold value you want to visualize',
 										min_value=float(data[filter2].fillna(0).min()),
 										max_value=float(data[filter2].fillna(0).max()),
