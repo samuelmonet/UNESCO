@@ -27,21 +27,24 @@ st.set_page_config(layout="wide")
 #import des données
 @st.cache
 def load_data():
-	data = pd.read_csv('viz.csv',sep='\t')
+	data = pd.read_csv('viz2.csv',sep='\t')
 	data.drop([i for i in data if 'Unnamed' in i],axis=1,inplace=True)
-	data['Village_clean']=data['Village_clean'].apply(lambda x: 'Al-Samoud' if x== 'Al-Samoud neighborhood alone, the martyr Badr' else x)
+	data['Village_clean']=data['Village_clean'].apply(lambda x: 'Al-Samoud' if x== 'Al-Samoud neighborhood, Alshhid Badr unit' else x)
 	data['cashspend_num']=data['cashspend_num'].astype('str')
 	correl=pd.read_csv('graphs.csv',sep='\t')
 	questions=pd.read_csv('questions.csv',sep='\t')
 	questions.drop([i for i in questions.columns if 'Unnamed' in i],axis=1,inplace=True)
 	quest=questions.iloc[4].to_dict()
 	questions=questions.T
+	cfw=pd.read_csv('datancfw.csv',sep='\t')
+	cfw['Village_clean'] = cfw['Village_clean'].apply(
+		lambda x: 'Al-Samoud' if x == 'Al-Samoud neighborhood, Alshhid Badr unit' else x)
 
 	codes=pd.read_csv('codes.csv',index_col=None,sep='\t').dropna(how='any',subset=['color'])
 	
-	return data,correl,quest,codes
+	return data,correl,quest,codes,cfw
 
-data,correl,questions,codes=load_data()
+data,correl,questions,codes,cfw=load_data()
 #st.write(questions)
 #st.dataframe(correl)
 #st.write(data.columns)
@@ -136,8 +139,8 @@ def count2(abscisse,ordonnée,dataf,legendtitle='',xaxis=''):
 	agg2=agg2.astype(int)
     
 	if abscisse=='Village_clean':
-		agg=agg.reindex(['Alqatie','Bayt bus','Hayu aleumaal','Hadah',"Anma'",'Aljamie','Al-Samoud',"Sanea' alqadimuh",'Zubid'])
-		agg2=agg2.reindex(['Alqatie','Bayt bus','Hayu aleumaal','Hadah',"Anma'",'Aljamie','Al-Samoud',"Sanea' alqadimuh",'Zubid'])
+		agg=agg.reindex(['Bit Boos',"Old Sana'a","Enma'a","Alkatea'a","Hada'a",'AlGamea',"Alomall neighborhood",'Al-Samoud'])
+		agg2=agg2.reindex(['Bit Boos',"Old Sana'a","Enma'a","Alkatea'a","Hada'a",'AlGamea',"Alomall neighborhood",'Al-Samoud'])
 
 	x=agg.index
     
@@ -189,11 +192,9 @@ def pourcent2(abscisse,ordonnée,dataf,legendtitle='',xaxis=''):
 
 	if abscisse == 'Village_clean':
 		agg = agg.reindex(
-			['Alqatie', 'Bayt bus', 'Hayu aleumaal', 'Hadah', "Anma'", 'Aljamie', 'Al-Samoud', "Sanea' alqadimuh",
-			 'Zubid'])
+			['Bit Boos',"Old Sana'a","Enma'a","Alkatea'a","Hada'a",'AlGamea',"Alomall neighborhood",'Al-Samoud'])
 		agg2 = agg2.reindex(
-			['Alqatie', 'Bayt bus', 'Hayu aleumaal', 'Hadah', "Anma'", 'Aljamie', 'Al-Samoud', "Sanea' alqadimuh",
-			 'Zubid'])
+			['Bit Boos',"Old Sana'a","Enma'a","Alkatea'a","Hada'a",'AlGamea',"Alomall neighborhood",'Al-Samoud'])
 
 	x = agg.index
 
@@ -333,13 +334,15 @@ def main():
 		st.write('Note: Correlation does not mean causation. This is not because 2 features are correlated that one is the cause of the other. So conclusion have to be made with care.')
 		continues=pickle.load( open( "cont_feat.p", "rb" ) )
 		cat_cols=pickle.load( open( "cat_cols.p", "rb" ) )
-		
+		st.markdown("""---""")
 				
 		quests=correl[correl['variable_x'].fillna('').apply(lambda x: True if 'region' not in x else False)]
-
+		k = 0
 		for absc in quests['variable_x'].unique():
-			
-			k=0
+
+
+
+
 			quest=quests[quests['variable_x']==absc]
 			#st.write(quest)
 			if len(quest)>1 or 'bar' in quest['graphtype'].unique():
@@ -348,40 +351,40 @@ def main():
 
 				#st.write(quest.iloc[i]['variable_x']+'##')
 				#st.write('in cat cols: ',quest.iloc[i]['variable_x'] in cat_cols)
-				datas=data.copy()
-			
+				if absc=='CFW':
+					datas=cfw.copy()
+				else:
+					datas=data.copy()
+
 				if quest.iloc[i]['variable_x'] in cat_cols or quest.iloc[i]['variable_y'] in cat_cols:
-					
+
 					if quest.iloc[i]['variable_x'] in cat_cols:
 						cat,autre=quest.iloc[i]['variable_x'],quest.iloc[i]['variable_y']
 					else:
 						cat,autre=quest.iloc[i]['variable_y'],quest.iloc[i]['variable_x']
 					#st.write('cat: ',cat,' et autre: ',autre)
-						
+
 					df=pd.DataFrame(columns=[cat,autre])
-					
+
 					catcols=[j for j in datas.columns if cat in j]
 					cats=[' '.join(i.split(' ')[1:]) for i in catcols]
-				
+
 					for n in range(len(catcols)):
 						ds=datas[[catcols[n],autre]].copy()
 						ds=ds[ds[catcols[n]].isin(['Yes',1])]
 						ds[catcols[n]]=ds[catcols[n]].apply(lambda x: cats[n])
 						ds.columns=[cat,autre]
 						df=df.append(ds)
-					df['persons']=np.ones(len(df))		
+					df['persons']=np.ones(len(df))
 					#st.write(df)
 					#st.write(quest.iloc[i]['graphtype'])
-				else:	
+				else:
 					df=datas[[quest.iloc[i]['variable_x'],quest.iloc[i]['variable_y']]].copy()
 					df['persons']=np.ones(len(df))
-				
-				if quest.iloc[i]['graphtype']=='sunburst':
-					st.subheader(quest.iloc[i]['title'])
-					fig = px.sunburst(df.fillna(''), path=[quest.iloc[i]['variable_x'], quest.iloc[i]['variable_y']], 	values='persons',color=quest.iloc[i]['variable_y'])
-					#fig.update_layout(title_text=quest.iloc[i]['variable_x'] + ' and ' +quest.iloc[i]['variable_y'],font=dict(size=20))
-					st.plotly_chart(fig,size=1000)
-				elif quest.iloc[i]['graphtype']=='treemap':
+
+				#st.write(df)
+
+				if quest.iloc[i]['graphtype']=='treemap':
 					st.subheader(quest.iloc[i]['title'])
 					#fig=go.Figure()
 					#fig.add_trace(go.Treemap(branchvalues='total',labels=data[quest.iloc[i]['variable_x']],parents=data[quest.iloc[i]['variable_y']],
@@ -390,12 +393,13 @@ def main():
 								   values='persons',color=quest.iloc[i]['variable_y'])
 					st.plotly_chart(fig,use_container_width=True)
 					st.write(quest.iloc[i]['description'])
+
 				elif quest.iloc[i]['graphtype']=='violin':
 					fig = go.Figure()
 					if quest.iloc[i]['variable_x'].split(' ')[0] in codes['list name'].unique():
 						categs = codes[codes['Id']==quest.iloc[i]['variable_x'].split(' ')[0]].sort_values(by='coding')['label'].tolist()
 					elif quest.iloc[i]['variable_x']=='Village_clean':
-						categs=['Alqatie','Bayt bus','Hayu aleumaal','Hadah',"Anma'",'Aljamie','Al-Samoud',"Sanea' alqadimuh",'Zubid']
+						categs=['Bit Boos',"Old Sana'a","Enma'a","Alkatea'a","Hada'a",'AlGamea',"Alomall neighborhood",'Al-Samoud']
 					elif quest.iloc[i]['variable_x']== 'cashspend_num':
 						categs=['0','1','2','3','4']
 					elif quest.iloc[i]['variable_x']=='educ_mean':
@@ -404,7 +408,6 @@ def main():
 
 					else:
 						categs = df[quest.iloc[i]['variable_x']].unique()
-
 
 					for categ in categs:
 						fig.add_trace(go.Violin(x=df[quest.iloc[i]['variable_x']][df[quest.iloc[i]['variable_x']] == str(categ)],
@@ -415,61 +418,92 @@ def main():
 
 					fig.update_layout(showlegend=False)
 					fig.update_yaxes(range=[-0.1, df[quest.iloc[i]['variable_y']].max()+1])
-					fig.update_layout(yaxis={'title':quest.iloc[i]['ytitle'],'title_font':{'size':18}})	
-					k+=1
-					
-					st.subheader(quest.iloc[i]['title'])
-					st.plotly_chart(fig,use_container_width=True)
-					st.write(quest.iloc[i]['description'])
-					
-									
-				elif quest.iloc[i]['graphtype']=='bar':
-					
-					#st.write(df[quest.iloc[i]['variable_y']].dtype)
-					
-					
-					st.subheader(quest.iloc[i]['title'])
-				
-					col1,col2=st.columns([1,1])
+					fig.update_layout(yaxis={'title':quest.iloc[i]['ytitle'],'title_font':{'size':18}})
 
-					fig1=count2(quest.iloc[i]['variable_x'],quest.iloc[i]['variable_y'],\
+
+					st.subheader(quest.iloc[i]['title'])
+
+					if quest.iloc[i]['nonCFW']=='X':
+						k+=1
+						if st.checkbox(str(k)+' - Show also not CFW Beneficiaries'):
+							df1=cfw[cfw['CFW']=='CFW Beneficiary'].copy()
+							df2 = cfw[cfw['CFW'] != 'CFW Beneficiary'].copy()
+							col1,col2=st.columns([1,1])
+							col1.subheader('CFW beneficiaries')
+							col2.subheader('Non CFW beneficiaries')
+							fig1,fig2 = go.Figure(),go.Figure()
+							for categ in categs:
+								fig1.add_trace(go.Violin(
+									x=df1[quest.iloc[i]['variable_x']][df1[quest.iloc[i]['variable_x']] == str(categ)],
+									y=df1[quest.iloc[i]['variable_y']][df1[quest.iloc[i]['variable_x']] == str(categ)],
+									name=categ,
+									box_visible=True,
+									meanline_visible=True, points="all", ))
+								fig2.add_trace(go.Violin(
+									x=df2[quest.iloc[i]['variable_x']][df2[quest.iloc[i]['variable_x']] == str(categ)],
+									y=df2[quest.iloc[i]['variable_y']][df2[quest.iloc[i]['variable_x']] == str(categ)],
+									name=categ,
+									box_visible=True,
+									meanline_visible=True, points="all", ))
+							fig1.update_layout(showlegend=False)
+							fig1.update_yaxes(range=[-0.1, df1[quest.iloc[i]['variable_y']].max() + 1])
+							fig1.update_layout(yaxis={'title': quest.iloc[i]['ytitle'], 'title_font': {'size': 18}})
+							fig2.update_layout(showlegend=False)
+							fig2.update_yaxes(range=[-0.1, df2[quest.iloc[i]['variable_y']].max() + 1])
+							fig2.update_layout(yaxis={'title': quest.iloc[i]['ytitle'], 'title_font': {'size': 18}})
+							col1.plotly_chart(fig1, use_container_width=True)
+							col2.plotly_chart(fig2, use_container_width=True)
+							st.write(quest.iloc[i]['Description2'])#mettre une autre description
+						else:
+							st.plotly_chart(fig, use_container_width=True)
+							st.write(quest.iloc[i]['description'])
+					else:
+						st.plotly_chart(fig,use_container_width=True)
+						st.write(quest.iloc[i]['description'])
+				elif quest.iloc[i]['graphtype']=='bar':
+					#st.write(df[quest.iloc[i]['variable_y']].dtype)
+					st.subheader(quest.iloc[i]['title'])
+					if quest.iloc[i]['nonCFW'] == 'X':
+						st.subheader('CFW Beneficiaries')
+					col1,col2=st.columns([1,1])
+					fig1=count2(quest.iloc[i]['variable_x'],quest.iloc[i]['variable_y'],
 					df,legendtitle=quest.iloc[i]['legendtitle'],xaxis=quest.iloc[i]['xtitle'])
-					
 					col1.plotly_chart(fig1,use_container_width=True)
-						
-					fig2=pourcent2(quest.iloc[i]['variable_x'],quest.iloc[i]['variable_y'],\
+					fig2=pourcent2(quest.iloc[i]['variable_x'],quest.iloc[i]['variable_y'],
 					df,legendtitle=quest.iloc[i]['legendtitle'],xaxis=quest.iloc[i]['xtitle'])
 					#fig2.update_layout(title_text=quest.iloc[i]['title'],font=dict(size=20),showlegend=True,xaxis_tickangle=45)
 					col2.plotly_chart(fig2,use_container_width=True)
 					st.write(quest.iloc[i]['description'])
-					#st.write(df)
-				
-				st.markdown("""---""")		
-	
-				
-	
-		
-	elif topic=='Display Other visuals':
-	
+					if quest.iloc[i]['nonCFW'] == 'X':
+						k+=1
+						if st.checkbox(str(k) + ' - Show also not CFW Beneficiaries'):
+							st.subheader('Non CFW Beneficiaries')
+							col1, col2 = st.columns([1, 1])
+							fig1 = count2(quest.iloc[i]['variable_x'], quest.iloc[i]['variable_y'],
+										  cfw[cfw['CFW']!='CFW Beneficiary'], legendtitle=quest.iloc[i]['legendtitle'], xaxis=quest.iloc[i]['xtitle'])
+							col1.plotly_chart(fig1, use_container_width=True)
+							fig2 = pourcent2(quest.iloc[i]['variable_x'], quest.iloc[i]['variable_y'],
+											 cfw[cfw['CFW']!='CFW Beneficiary'], legendtitle=quest.iloc[i]['legendtitle'], xaxis=quest.iloc[i]['xtitle'])
+							# fig2.update_layout(title_text=quest.iloc[i]['title'],font=dict(size=20),showlegend=True,xaxis_tickangle=45)
+							col2.plotly_chart(fig2, use_container_width=True)
+							st.write(quest.iloc[i]['Description2'])
+						#st.write(df)
+
+				st.markdown("""---""")
+
+	elif topic == 'Display Other visuals':
+		st.markdown("""---""")
 		st.title('Rank how have you used the cash received?')
 		st.write('You can move the box with the mouse and increase the size of the plot on the right corner if you need')
-
-		sank=data[['use1','use2','use3']].copy()
+		sank = data[['use1', 'use2', 'use3']].copy()
 		L = ['Wheat flour', 'Rice', 'Qhat', 'Tools', 'Clothes', 'Health', 'Meat', 'Education']
-		sank['use1'] = sank['use1'].apply(lambda x: x if x in L else 'Other')
-
-		st.markdown("""---""")
-
+		sank['use1'] = sank['use1'].apply(lambda x : x if x in L else 'Other')
 		st.write('First main usage - Second main usage - Third main usage')
-		fig=sankey_graph(sank,['use1','use2','use3'],height=900,width=1500)
+		fig = sankey_graph(sank, ['use1', 'use2', 'use3'], height=900, width=1500)
 		fig.update_layout(plot_bgcolor='black', paper_bgcolor='grey')
-		st.plotly_chart(fig, use_container_width=True,height=900,t_margin=0,b_margin=0)
-
+		st.plotly_chart(fig, use_container_width=True, height=900, t_margin=0, b_margin=0)
 		st.markdown("""---""")
-
 		st.title('Distribution of percentages of use of the cash received per category')
-		st.title('')
-
 		df = pd.DataFrame(columns=['usage', 'percentage'])
 		for i in range(1, 27):
 			dftemp = pd.DataFrame(columns=['usage', 'village', 'percentage'])
@@ -479,10 +513,8 @@ def main():
 			dftemp['village'] = data['Village_clean']
 			df = df.append(dftemp)
 		df = df[df['percentage'] > 0]
-		fig, ax = joyplot(
-			data=df,
-			by='usage',
-		)
+		#st.write(df)
+		fig, ax = joyplot(data=df, by='usage')
 		st.pyplot(fig)
 
 	elif topic == 'Analyze Wordclouds':
