@@ -522,8 +522,10 @@ def main():
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
 					minimum = st.slider('Select the minimum value you want to visulize',
-										min_value=data[filter2].fillna(0).min(),
-										max_value=data[filter2].fillna(0).max(),value=data[filter2].fillna(0).min())
+										min_value=float(data[filter2].fillna(0).min()),
+										max_value=float(data[filter2].fillna(0).max()),
+										value=float(data[filter2].fillna(0).min())
+										)
 					maximum = st.slider('Select the maximum value you want to visulize', min_value=minimum,
 										max_value=data[filter2].fillna(0).max(),value=data[filter2].fillna(0).max())
 					df = data[(data[filter2] >= minimum) & (data[filter2] <= maximum)]
