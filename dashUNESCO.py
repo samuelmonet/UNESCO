@@ -524,7 +524,7 @@ def main():
 										[questions[i] for i in df if i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
-					df[filter2] = df[filter2].astype(float)
+					a = df[filter2].astype(float)
 					minimum = st.slider('Select the minimum value you want to visulize',
 										min_value=float(a.min()),
 										max_value=float(a.max()),
