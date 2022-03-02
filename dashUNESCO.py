@@ -584,7 +584,8 @@ def main():
 										 i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
-					threshold = st.slider('Select athreshold value you want to visualize',
+					data[filter2]=data[filter2].astype(float)
+					threshold = st.slider('Select threshold value you want to visualize',
 										min_value=data[filter2].fillna(0).min(),
 										max_value=data[filter2].fillna(0).max(), value=data[filter2].fillna(0).min())
 					DF=[data[data[filter2] <= threshold][d[feature]], data[data[filter2] <= threshold][d[feature]]]
