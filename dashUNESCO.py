@@ -586,9 +586,11 @@ def main():
 				if filter2 in continues:
 					data[filter2]=data[filter2].astype(float)
 					threshold = st.slider('Select threshold value you want to visualize',
-										min_value=data[filter2].fillna(0).min(),
-										max_value=data[filter2].fillna(0).max(), value=data[filter2].fillna(0).min())
-					DF=[data[data[filter2] <= threshold][d[feature]], data[data[filter2] <= threshold][d[feature]]]
+										min_value=float(data[filter2].fillna(0).min()),
+										max_value=float(data[filter2].fillna(0).max()),
+										value=float(data[filter2].fillna(0).min())
+										)
+					DF=[data[data[filter2] <= threshold][d[feature]], data[data[filter2] > threshold][d[feature]]]
 					titres=['Response under '+str(threshold),'Response over '+str(threshold)]
 				else:
 					DF=[data[data[filter2] == j][d[feature]] for j in data[filter2].unique()]
