@@ -21,7 +21,7 @@ def load_data():
 	data.drop([i for i in data if 'Unnamed' in i], axis=1, inplace=True)
 	continues = pickle.load(open("cont_feat.p", "rb"))
 	for i in continues:
-		data[i] = data[i].fillna(0).astype(float)
+		data[i] = data[i].fillna(0).apply(lambda x : float(x))
 	data['Village_clean'] = data['Village_clean'].apply(lambda x: 'Al-Samoud' if
 														x == 'Al-Samoud neighborhood, Alshhid Badr unit' else x)
 	data['cashspend_num'] = data['cashspend_num'].astype('str')
