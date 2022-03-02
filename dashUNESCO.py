@@ -419,6 +419,7 @@ def main():
 		st.pyplot(fig)
 
 	elif topic == 'Analyze Wordclouds':
+		df = data.copy()
 		text = pickle.load(open("text.p", "rb"))
 		continues = pickle.load(open("cont_feat.p", "rb"))
 		to_drop = pickle.load(open("drop.p", "rb"))
@@ -448,9 +449,9 @@ def main():
 		if feature == 'Reason why the selected month is difficult':
 			months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
 					  'November', 'December']
-			feats=[i for i in data if 'reason' in i]
+			feats=[i for i in df if 'reason' in i]
 			col1, col2, col3 = st.columns([2, 1, 2])
-			df=data.copy()
+
 			df = df[feats].applymap(lambda x : '' if x == '0' else x).copy()
 
 			corpus=''
@@ -489,7 +490,7 @@ def main():
 			else:
 				colonnes = ['protection_learning1', 'protection_learning2', 'protection_learning3']
 				titles = ['First', 'Second', 'Third']
-			df = data.copy()
+
 			corpus = ' '.join(df[colonnes[0]].dropna()) + \
 					 ' '.join(df[colonnes[1]].dropna()) + ' '.join(df[colonnes[2]].dropna())
 			corpus = re.sub('[^A-Za-z ]', ' ', corpus)
@@ -520,7 +521,7 @@ def main():
 					col3.image(wc.to_array(), use_column_width=True)
 			if st.checkbox('Would you like to filter Wordcloud according to other questions'):
 				feature2 = st.selectbox('Select one question to filter the wordcloud',
-										[questions[i] for i in data if i not in text and i != 'UniqueID' and i not in to_drop])
+										[questions[i] for i in df if i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
 					df[filter2] = df[filter2].astype(float)
@@ -585,7 +586,7 @@ def main():
 
 			if st.checkbox('Would you like to filter Wordcloud according to other questions'):
 				feature2 = st.selectbox('Select one question to filter the wordcloud',
-										[questions[i] for i in data if
+										[questions[i] for i in df if
 										 i not in text and i != 'UniqueID' and i not in to_drop])
 				filter2 = [i for i in questions if questions[i] == feature2][0]
 				if filter2 in continues:
