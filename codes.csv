@@ -62,3 +62,13 @@ cashusage	25	Books
 cashusage	26	Education		
 yesnoi	1	It was NOT as high as it should have been		
 yesnoi	2	It was as it should have been		
+leave		Yes	1.0	green
+leave		No	0.0	red
+salary_corect		Yes	1.0	green
+salary_corect		No	0.0	red
+level_effort		Yes	1.0	green
+level_effort		No	0.0	red
+why_selected		Yes	1.0	green
+why_selected		No	0.0	red
+fairselection		Yes	1.0	green
+fairselection		No	0.0	red
