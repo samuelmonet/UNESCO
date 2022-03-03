@@ -38,7 +38,7 @@ def load_data():
 data, correl, questions, codes, cfw = load_data()
 
 
-def sankey_graph(data, L, height=600,width=1600):
+def sankey_graph(Data, L, height=600,width=1600):
 	""" sankey graph de data pour les catégories dans L dans l'ordre et  de hauter et longueur définie éventuellement"""
 	nodes_colors = ["blue", "green", "grey", 'yellow', "coral", 'darkviolet', 'saddlebrown', 'darkblue', 'brown']
 	link_colors = ["lightblue", "limegreen", "lightgrey", "lightyellow", "lightcoral", 'plum', 'sandybrown', 'lightsteelblue', 'rosybrown']
@@ -46,37 +46,37 @@ def sankey_graph(data, L, height=600,width=1600):
 	source = []
 	target = []
 	for cat in L:
-		lab = data[cat].unique().tolist()
+		lab = Data[cat].unique().tolist()
 		lab.sort()
 		labels += lab
-	for i in range(len(data[L[0]].unique())):  # j'itère sur mes premieres sources
-		source+=[i for k in range(len(data[L[1]].unique()))]  # j'envois sur ma catégorie 2
-		index=len(data[L[0]].unique())
-		target+=[k for k in range(index,len(data[L[1]].unique())+index)]
+	for i in range(len(Data[L[0]].unique())):  # j'itère sur mes premieres sources
+		source+=[i for k in range(len(Data[L[1]].unique()))]  # j'envois sur ma catégorie 2
+		index=len(Data[L[0]].unique())
+		target+=[k for k in range(index,len(Data[L[1]].unique())+index)]
 		for n in range(1, len(L)-1):
-			source += [index+k for k in range(len(data[L[n]].unique())) for j in range(len(data[L[n+1]].unique()))]
-			index += len(data[L[n]].unique())
-			target += [index+k for j in range(len(data[L[n]].unique())) for k in range(len(data[L[n+1]].unique()))]
-	iteration = int(len(source)/len(data[L[0]].unique()))
+			source += [index+k for k in range(len(Data[L[n]].unique())) for j in range(len(Data[L[n+1]].unique()))]
+			index += len(Data[L[n]].unique())
+			target += [index+k for j in range(len(Data[L[n]].unique())) for k in range(len(Data[L[n+1]].unique()))]
+	iteration = int(len(source)/len(Data[L[0]].unique()))
 	value_prov = [(int(i//iteration), source[i], target[i]) for i in range(len(source))]
 	value = []
 	k = 0
 	position = []
 	for i in L:
-		k += len(data[i].unique())
+		k += len(Data[i].unique())
 		position.append(k)
 	for triplet in value_prov:
 		k = 0
 		while triplet[1] >= position[k]:
 			k += 1
-		df = data[data[L[0]] == labels[triplet[0]]].copy()
+		df = Data[Data[L[0]] == labels[triplet[0]]].copy()
 		df = df[df[L[k]] == labels[triplet[1]]]
 		value.append(len(df[df[L[k+1]] == labels[triplet[2]]]))
-	color_nodes=nodes_colors[:len(data[L[0]].unique())]+["black" for i in range(len(labels)-len(data[L[0]].unique()))]
+	color_nodes=nodes_colors[:len(Data[L[0]].unique())]+["black" for i in range(len(labels)-len(Data[L[0]].unique()))]
 	color_links=[]
-	for i in range(len(data[L[0]].unique())):
+	for i in range(len(Data[L[0]].unique())):
 		color_links += [link_colors[i] for couleur in range(iteration)]
-	fig = go.Figure(data=[go.Sankey(node=dict(pad=15, thickness=30, line=dict(color="black", width=1),
+	fig = go.Figure(Data=[go.Sankey(node=dict(pad=15, thickness=30, line=dict(color="black", width=1),
 											  label=[i.upper() for i in labels], color=color_nodes),
 									link=dict(source=source, target=target, value=value, color=color_links))])
 	return fig
@@ -99,7 +99,7 @@ def count2(abscisse, ordonnee, dataf, legendtitle='', xaxis=''):
 
 	if ordonnee.split(' ')[0] in codes['list name'].values:
 		#st.write('on est là')
-		colors_code = codes[codes['list name'] == ordonnee.split(' ')[0]].sort_values(['coding'])
+		colors_code = codes[codes['list name'] == ordonnee.split(' ')[0]].sort_values(['coding']).copy()
 		labels = colors_code['label'].tolist()
 		colors = colors_code['color'].tolist()
 		fig = go.Figure()
@@ -136,7 +136,7 @@ def pourcent2(abscisse, ordonnee, dataf, legendtitle='', xaxis=''):
 	x = agg.index
 	x = agg2.index
 	if ordonnee.split(' ')[0] in codes['list name'].values:
-		colors_code = codes[codes['list name']==ordonnee.split(' ')[0]].sort_values(['coding'])
+		colors_code = codes[codes['list name']==ordonnee.split(' ')[0]].sort_values(['coding']).copy()
 		labels = colors_code['label'].tolist()
 		colors = colors_code['color'].tolist()
 		fig = go.Figure()
@@ -255,7 +255,7 @@ def main():
 		continues = pickle.load( open( "cont_feat.p", "rb" ) )
 		cat_cols = pickle.load( open( "cat_cols.p", "rb" ) )
 		st.markdown("""---""")
-		quests = correl[correl['variable_x'].fillna('').apply(lambda x : True if 'region' not in x else False)]
+		quests = correl[correl['variable_x'].fillna('').apply(lambda x : True if 'region' not in x else False)].copy()
 		k = 0
 		for absc in quests['variable_x'].unique():
 			quest = quests[quests['variable_x'] == absc]
