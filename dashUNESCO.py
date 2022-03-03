@@ -78,7 +78,7 @@ def sankey_graph(data, L, height=600,width=1600):
 		color_links += [link_colors[i] for couleur in range(iteration)]
 	fig = go.Figure(data=[go.Sankey(node=dict(pad=15, thickness=30, line=dict(color="black", width=1),
 											  label=[i.upper() for i in labels], color=color_nodes),
-									Link=dict(source=source, target=target, value=value, color=color_links))])
+									link=dict(source=source, target=target, value=value, color=color_links))])
 	return fig
 
 
